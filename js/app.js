@@ -1,7 +1,16 @@
-/*
- * Create a list that holds all of your cards
- */
+let cardList = [];
+let move = 0;
+let threeStar = 9;
+let twoStar = 20;
 
+window.addEventListener("load", () => {
+    controller();
+});
+
+function controller() {
+    //Shuffle cards on the start of the game
+    displayShuffledCards();
+}
 
 /*
  * Display the cards on the page
@@ -9,6 +18,25 @@
  *   - loop through each card and create its HTML
  *   - add each card's HTML to the page
  */
+function displayShuffledCards() {
+    let cardArray = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-anchor", "fa-leaf",
+        "fa-bicycle", "fa-diamond", "fa-bomb", "fa-leaf", "fa-bomb", "fa-bolt", "fa-bicycle", "fa-paper-plane-o", "fa-cube"];
+    cardArray = shuffle(cardArray);
+    const deck = document.getElementById("cardDeck");
+    cardArray.forEach((cardType) => {
+        const cardListItem = document.createElement("li");
+        cardListItem.className = "card";
+        cardListItem.tagName = `${cardType}`;
+        cardListItem.addEventListener("click", () => {
+            flipCard(cardListItem);
+        });
+        const cardTile = document.createElement("i");
+        cardTile.className = `fa ${cardType}`;
+        cardListItem.appendChild(cardTile);
+        deck.appendChild(cardListItem);
+    });
+
+}
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
@@ -25,7 +53,46 @@ function shuffle(array) {
     return array;
 }
 
+function flipCard(card) {
+    console.log(cardList);
+    if (cardList.length < 1) {
+        card.className = "card match";
+        cardList.push(card);
+    } else {
+        incrementMove();
+        let cardMatch = cardList.pop();
+        card.className= "card match";
+        let card1Type = card.lastChild.className;
+        let card2Type = cardMatch.lastChild.className;
+        if (card1Type === card2Type) {
+            lockCard(card, cardMatch);
+        } else {
+            setTimeout(function(){
+                console.log("Displaying Invalid Tile");
+                card.className = "card";
+                cardMatch.className = "card";},1000);
+        }
+    }
+}
 
+function lockCard(card, cardMatch){
+    card.className = "card match";
+    cardMatch.className = "card match";
+}
+
+function incrementMove(){
+    move+=1;
+    document.getElementById("moveCount").innerHTML=move;
+    assessStar(move);
+}
+
+function assessStar(move){
+    if(move>threeStar&&move<=twoStar){
+
+    }else{
+
+    }
+}
 /*
  * set up the event listener for a card. If a card is clicked:
  *  - display the card's symbol (put this functionality in another function that you call from this one)
