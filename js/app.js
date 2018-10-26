@@ -1,15 +1,85 @@
 let cardList = [];
 let move = 0;
-let threeStar = 9;
-let twoStar = 20;
+let matched =0;
+let threeStar = 100;
+let twoStar = 100;
+let minutes = 0;
+let seconds = 0;
+let lock = false;
+let timer = null;
 
 window.addEventListener("load", () => {
-    controller();
+    initialGame();
 });
 
-function controller() {
+function initialGame() {
     //Shuffle cards on the start of the game
     displayShuffledCards();
+    document.getElementById("restartButton").addEventListener("click", ()=>{
+        restartGame();
+    });
+    timer = setInterval(timerUpdate, 1000);
+}
+
+function endGame(){
+    clearInterval(timer);
+    document.getElementById("winMessage").style.display = "block";
+    document.getElementById("time").innerHTML = `Time: ${formatTime(seconds, minutes)}`;
+    let score =  document.getElementById("starScore").childElementCount;
+    document.getElementById("winRating").innerHTML = `Score: ${score} Stars`;
+    document.getElementById("winMessage").addEventListener("click", function () {
+        document.getElementById("winMessage").style.display = "none";
+    })
+}
+
+function timerUpdate(){
+    let second = getSeconds();
+    document.getElementById("timer").innerHTML= formatTime(second, minutes);
+    console.log(matched);
+    if(matched===1){
+        endGame();
+    }
+}
+
+function formatTime(second, minute) {
+    let time = "";
+    if(second<10){
+        if(minute<10){
+            time = `0${minute}:0${second}`;
+        }else {
+            time = `${minute}:0${second}`;
+        }
+    }else{
+        if(minute<10){
+            time = `0${minute}:${second}`;
+        }else {
+            time = `${minute}:${second}`;
+        }
+    }
+    return time;
+}
+function getSeconds(){
+    seconds+=1;
+    if(seconds>59){
+        minutes+=1;
+        seconds=0;
+    }
+    return seconds;
+}
+
+function restartGame(){
+    assessStar(false, move);
+    cardList = [];
+    move = -1;
+    incrementMove();
+    matched =0;
+    displayShuffledCards();
+    minutes=0;
+    seconds=0;
+    document.getElementById("timer").innerHTML=`00:00`;
+    matched = 0;
+    clearInterval(timer);
+    timer = setInterval(timerUpdate, 1000);
 }
 
 /*
@@ -23,6 +93,7 @@ function displayShuffledCards() {
         "fa-bicycle", "fa-diamond", "fa-bomb", "fa-leaf", "fa-bomb", "fa-bolt", "fa-bicycle", "fa-paper-plane-o", "fa-cube"];
     cardArray = shuffle(cardArray);
     const deck = document.getElementById("cardDeck");
+    deck.innerHTML="";
     cardArray.forEach((cardType) => {
         const cardListItem = document.createElement("li");
         cardListItem.className = "card";
@@ -40,7 +111,7 @@ function displayShuffledCards() {
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
+    let currentIndex = array.length, temporaryValue, randomIndex;
 
     while (currentIndex !== 0) {
         randomIndex = Math.floor(Math.random() * currentIndex);
@@ -54,44 +125,80 @@ function shuffle(array) {
 }
 
 function flipCard(card) {
-    console.log(cardList);
-    if (cardList.length < 1) {
-        card.className = "card match";
-        cardList.push(card);
-    } else {
-        incrementMove();
-        let cardMatch = cardList.pop();
-        card.className= "card match";
-        let card1Type = card.lastChild.className;
-        let card2Type = cardMatch.lastChild.className;
-        if (card1Type === card2Type) {
-            lockCard(card, cardMatch);
+    if(!lock){
+        if (cardList.length < 1) {
+            card.className = "card match";
+            cardList.push(card);
         } else {
-            setTimeout(function(){
-                console.log("Displaying Invalid Tile");
-                card.className = "card";
-                cardMatch.className = "card";},1000);
+            let cardMatch = cardList.pop();
+            card.className= "card match";
+            let card1Type = card.lastChild.className;
+            let card2Type = cardMatch.lastChild.className;
+            if (card1Type === card2Type) {
+                lockCard(card, cardMatch);
+            } else {
+                lock=true;
+                setTimeout(function(){
+                    incrementMove();
+                    lock = false;
+                    card.className = "card";
+                    cardMatch.className = "card";},1000);
+            }
         }
     }
 }
 
 function lockCard(card, cardMatch){
+    incrementMove();
     card.className = "card match";
     cardMatch.className = "card match";
+    matched+=1;
 }
 
 function incrementMove(){
     move+=1;
     document.getElementById("moveCount").innerHTML=move;
-    assessStar(move);
+    assessStar(true, move);
 }
 
-function assessStar(move){
-    if(move>threeStar&&move<=twoStar){
-
-    }else{
-
+function assessStar(remove, move){
+    if(remove){
+        if(move>threeStar){
+            removeStar();
+            if(move>twoStar){
+                removeStar();
+            }
+        }
+    }else {
+        resetStar();
     }
+}
+
+function removeStar(){
+    const stars = document.getElementById('starScore');
+    const lastStar = stars.lastChild;
+    if(lastStar){
+        stars.removeChild(stars.lastChild);
+        if(!stars.lastChild){
+            addStar(stars)
+        }
+    }
+}
+
+function resetStar(){
+    const stars = document.getElementById('starScore');
+    stars.innerHTML="";
+    for(let i = 0; i<3;i++){
+        addStar(stars);
+    }
+}
+
+function addStar(stars){
+    const starListItem = document.createElement("li");
+    const star = document.createElement("i");
+    star.className = `fa fa-star`;
+    starListItem.appendChild(star);
+    stars.appendChild(starListItem);
 }
 /*
  * set up the event listener for a card. If a card is clicked:
