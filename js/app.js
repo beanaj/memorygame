@@ -2,8 +2,8 @@
 let cardList = [];
 let move = 0;
 let matched = 0;
-let threeStar = 12;
-let twoStar = 20;
+let threeStar = 16;
+let twoStar = 22;
 let minutes = 0;
 let seconds = 0;
 let lock = false;
@@ -47,7 +47,7 @@ function timerUpdate() {
     let second = getSeconds();
     document.getElementById("timer").innerHTML = formatTime(second, minutes);
     //Check to see if all of the cards have been matched, if so end the game
-    if (matched === 16) {
+    if (matched === 8) {
         endGame();
     }
 }
