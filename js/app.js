@@ -1,5 +1,6 @@
 //Global game variables
 let cardList = [],
+    comparedID = "",
     move = 0,
     matched = 0,
     threeStar = 16,
@@ -113,7 +114,7 @@ function restartGame() {
  */
 function displayShuffledCards() {
     //Create an array of classes
-    let symbols = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube",  "fa-leaf",
+    let symbols = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-leaf",
         "fa-bicycle", "fa-bomb"];
     let cardArray = symbols.concat(symbols);
     //Shuffle the array
@@ -121,7 +122,7 @@ function displayShuffledCards() {
     const deck = document.getElementById("cardDeck");
     deck.innerHTML = "";
     //Create the deck
-    cardArray.forEach((cardType) => {
+    cardArray.forEach((cardType, index) => {
         const cardListItem = document.createElement("li");
         cardListItem.className = "card";
         cardListItem.tagName = `${cardType}`;
@@ -131,6 +132,7 @@ function displayShuffledCards() {
         });
         const cardTile = document.createElement("i");
         cardTile.className = `fa ${cardType}`;
+        cardTile.id = `fa ${cardType} ${index}`;
         cardListItem.appendChild(cardTile);
         deck.appendChild(cardListItem);
     });
@@ -153,33 +155,49 @@ function shuffle(array) {
 
 //Flip the clicked card
 function flipCard(card) {
+    let cardId = card.lastChild.id;
     //Check to see if there are already cards being flipped, if they are dont allow the flip
-    if (!lock) {
+    console.log(cardId);
+    console.log(comparedID);
+    if (!lock && (cardId !== comparedID)) {
         //Check to see if it is the first card being flipped
         if (cardList.length < 1) {
             card.className = "card match";
             cardList.push(card);
+            comparedID = cardId;
         } else {
+            //reset id
+            comparedID = "";
             //Compare the cards
             let cardMatch = cardList.pop();
             card.className = "card match";
             let card1Type = card.lastChild.className;
             let card2Type = cardMatch.lastChild.className;
-            //If matched lock the cards
+
             if (card1Type === card2Type) {
+                //If matched lock the cards
                 lockCard(card, cardMatch);
             } else {
+                //if cards are not the same card
                 //Otherwise flip back
-                lock = true;
-                setTimeout(function () {
-                    incrementMove();
-                    lock = false;
-                    card.className = "card";
-                    cardMatch.className = "card";
-                }, 1000);
+                notMatched(card, cardMatch)
             }
+
         }
     }
+}
+
+//Function to revert unmatched cards
+function notMatched(card, cardMatch) {
+    //if cards are not the same card
+    //Otherwise flip back
+    lock = true;
+    setTimeout(function () {
+        incrementMove();
+        lock = false;
+        card.className = "card";
+        cardMatch.className = "card";
+    }, 1000);
 }
 
 //Lock the card by increasing the score and changing the class display
@@ -195,6 +213,7 @@ function incrementMove() {
     move += 1;
     document.getElementById("moveCount").innerHTML = move;
     assessStar(true, move);
+
 }
 
 //Check to see if the stars need to be removed based on the score thresholds
