@@ -157,8 +157,6 @@ function shuffle(array) {
 function flipCard(card) {
     let cardId = card.lastChild.id;
     //Check to see if there are already cards being flipped, if they are dont allow the flip
-    console.log(cardId);
-    console.log(comparedID);
     if (!lock && (cardId !== comparedID)) {
         //Check to see if it is the first card being flipped
         if (cardList.length < 1) {
