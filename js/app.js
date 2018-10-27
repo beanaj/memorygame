@@ -1,13 +1,13 @@
 //Global game variables
-let cardList = [];
-let move = 0;
-let matched = 0;
-let threeStar = 16;
-let twoStar = 22;
-let minutes = 0;
-let seconds = 0;
-let lock = false;
-let timer = null;
+let cardList = [],
+    move = 0,
+    matched = 0,
+    threeStar = 16,
+    twoStar = 22,
+    minutes = 0,
+    seconds = 0,
+    lock = false,
+    timer = null;
 
 //Initialize the game state when the page is loaded
 window.addEventListener("load", () => {
@@ -113,8 +113,9 @@ function restartGame() {
  */
 function displayShuffledCards() {
     //Create an array of classes
-    let cardArray = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-anchor", "fa-leaf",
-        "fa-bicycle", "fa-diamond", "fa-bomb", "fa-leaf", "fa-bomb", "fa-bolt", "fa-bicycle", "fa-paper-plane-o", "fa-cube"];
+    let symbols = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube",  "fa-leaf",
+        "fa-bicycle", "fa-bomb"];
+    let cardArray = symbols.concat(symbols);
     //Shuffle the array
     cardArray = shuffle(cardArray);
     const deck = document.getElementById("cardDeck");
@@ -184,8 +185,8 @@ function flipCard(card) {
 //Lock the card by increasing the score and changing the class display
 function lockCard(card, cardMatch) {
     incrementMove();
-    card.className = "card match";
-    cardMatch.className = "card match";
+    card.className = "card match locked";
+    cardMatch.className = "card match locked";
     matched += 1;
 }
 
